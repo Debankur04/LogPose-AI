@@ -219,7 +219,7 @@ export default function PreferencesPage() {
                   size="sm"
                   variant="outline"
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="border-zinc-300 dark:border-zinc-700"
+                  className="border-zinc-300 dark:border-zinc-700 text-black"
                 >
                   Cancel
                 </Button>

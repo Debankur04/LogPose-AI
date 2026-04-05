@@ -62,6 +62,7 @@ export default function SignupPage() {
                 type="email"
                 placeholder="m@example.com"
                 required
+                className='text-black'
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -73,6 +74,7 @@ export default function SignupPage() {
               <Input
                 id="password"
                 type="password"
+                className='text-black'
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

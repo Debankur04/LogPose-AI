@@ -55,7 +55,7 @@ export default function Home() {
               </Button>
             </Link>
             <Link href="/login">
-              <Button size="lg" variant="outline" className="h-12 px-8 text-base">
+              <Button size="lg" variant="outline" className="h-12 px-8 text-base text-black">
                 Go to Chat
               </Button>
             </Link>
