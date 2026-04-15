@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { ArrowLeft, Save, Trash2, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+import { motion, AnimatePresence } from "framer-motion";
+import { apiClient } from "@/lib/apiClient";
 
 // Safely parse a FastAPI error response into a plain string
 const parseError = (data) => {
@@ -49,9 +49,8 @@ export default function PreferencesPage() {
   const fetchPreferences = async (uid) => {
     setIsFetching(true);
     try {
-      const res = await fetch(`${API_URL}/see_preference`, {
+      const res = await apiClient(`/see_preference`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: uid }),
       });
 
@@ -111,9 +110,8 @@ export default function PreferencesPage() {
 
     const endpoint = isExisting ? "/edit_preference" : "/add_preference";
     try {
-      const res = await fetch(`${API_URL}${endpoint}`, {
+      const res = await apiClient(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: userId,
           dietary_preference: dietObj,
@@ -142,9 +140,8 @@ export default function PreferencesPage() {
     setIsLoading(true);
     setStatus({ type: "", message: "" });
     try {
-      const res = await fetch(`${API_URL}/delete_preference`, {
+      const res = await apiClient(`/delete_preference`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId }),
       });
 
@@ -189,7 +186,12 @@ export default function PreferencesPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm">
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm"
+        >
           <div className="flex items-start justify-between mb-2">
             <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Travel Profile</h2>
             {isExisting && !isFetching && (
@@ -274,8 +276,15 @@ export default function PreferencesPage() {
                 </div>
 
                 {/* Dynamic extra keys */}
+                <AnimatePresence>
                 {extraKeys.map((entry, idx) => (
-                  <div key={idx} className="flex gap-3 items-center">
+                  <motion.div 
+                    key={idx} 
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: "auto", marginTop: 12 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    className="flex gap-3 items-center"
+                  >
                     <input
                       className="w-28 shrink-0 h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-50"
                       placeholder="key"
@@ -295,8 +304,9 @@ export default function PreferencesPage() {
                     >
                       <X className="h-4 w-4" />
                     </button>
-                  </div>
+                  </motion.div>
                 ))}
+                </AnimatePresence>
 
                 {/* Add field button */}
                 <button
@@ -352,7 +362,7 @@ export default function PreferencesPage() {
               </div>
             </form>
           )}
-        </div>
+        </motion.div>
       </div>
     </div>
   );

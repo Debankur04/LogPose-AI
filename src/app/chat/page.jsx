@@ -6,15 +6,21 @@ import Sidebar from "@/components/chat/Sidebar";
 import ChatHeader from "@/components/chat/ChatHeader";
 import MessageBubble from "@/components/chat/MessageBubble";
 import ChatInput from "@/components/chat/ChatInput";
+import { apiClient } from "@/lib/apiClient";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function ChatPage() {
   const router = useRouter();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [conversations, setConversations] = useState([]);
-  const [activeConversationId, setActiveConversationId] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [userId, setUserId] = useState(null);
+  
+  // STATE DEFINITIONS: These variables store data that changes over time.
+  // When they change, React automatically redraws the screen.
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Is the left menu open?
+  const [conversations, setConversations] = useState([]); // Stores the list of previous chats
+  const [activeConversationId, setActiveConversationId] = useState(null); // Which chat are we currently viewing?
+  const [messages, setMessages] = useState([]); // Stores the bubbles (messages) for the current chat
+  const [isLoading, setIsLoading] = useState(false); // Is the AI currently "thinking"?
+  const [userId, setUserId] = useState(null); // The unique ID of the logged-in user
+
 
   // New Chat Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -55,8 +61,7 @@ export default function ChatPage() {
 
   const fetchConversations = async (uid) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-      const response = await fetch(`${apiUrl}/see_conversation?user_id=${uid}`);
+      const response = await apiClient(`/see_conversation?user_id=${uid}`);
       if (response.ok) {
         const data = await response.json();
         const convos = data.conversations || [];
@@ -80,11 +85,31 @@ export default function ChatPage() {
 
   const fetchMessages = async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-      const response = await fetch(`${apiUrl}/see_message?conversation_id=${activeConversationId}`);
+      const response = await apiClient(`/see_message?conversation_id=${activeConversationId}`);
       if (response.ok) {
         const data = await response.json();
-        setMessages(data.messages || []);
+        
+        // Transform the messages to ensure content is always a string for the frontend
+        const formattedMessages = (data.messages || []).map((m) => {
+          let finalContent = m.content;
+          
+          if (typeof m.content === "object" && m.content !== null) {
+            finalContent = m.content.reply || m.content.answer || JSON.stringify(m.content);
+          } else if (typeof m.content === "string") {
+            try {
+              // Sometimes the backend stores it as a raw JSON string
+              const parsed = JSON.parse(m.content);
+              if (parsed.reply) finalContent = parsed.reply;
+              else if (parsed.answer) finalContent = parsed.answer;
+            } catch (e) {
+              // It's just a regular string, which is fine!
+            }
+          }
+          
+          return { ...m, content: finalContent };
+        });
+        
+        setMessages(formattedMessages);
       } else {
         setMessages([]); 
       }
@@ -109,10 +134,9 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-      const response = await fetch(`${apiUrl}/query`, {
+      // 1. Send the user's question to our backend API
+      const response = await apiClient(`/query`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: userId,
           conversation_id: currentConvoId,
@@ -120,15 +144,23 @@ export default function ChatPage() {
         }),
       });
 
+      // 2. Check if the server responded without errors
       if (response.ok) {
         const data = await response.json();
-        setMessages((prev) => [...prev, { role: "assistant", content: data.answer }]);
+        
+        // 3. Extract the "reply" from the JSON data.
+        // The backend sends back an object like: { "reply": "...", "confidence": 0.9 }
+        const aiResponse = data.reply || data.answer || "No response found.";
+        
+        // 4. Update our messages list with the AI's reply
+        setMessages((prev) => [...prev, { role: "assistant", content: aiResponse }]);
       } else {
         setMessages((prev) => [...prev, { role: "assistant", content: "Sorry, I encountered an error. Please try again." }]);
       }
     } catch (error) {
        setMessages((prev) => [...prev, { role: "assistant", content: "Network error. Please check your connection." }]);
     } finally {
+      // 5. Turn off the loading state regardless of success or failure
       setIsLoading(false);
     }
   };
@@ -142,10 +174,8 @@ export default function ChatPage() {
     if (!newChatTitle.trim()) return;
     setIsLoading(true);
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-      const response = await fetch(`${apiUrl}/create_conversation`, {
+      const response = await apiClient(`/create_conversation`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: userId, title: newChatTitle.trim() }),
       });
       if (response.ok) {
@@ -170,10 +200,8 @@ export default function ChatPage() {
 
   const handleDeleteChat = async (id) => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-      await fetch(`${apiUrl}/delete_conversation`, {
+      await apiClient(`/delete_conversation`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ conversation_id: id }),
       });
       await fetchConversations(userId);
@@ -210,13 +238,18 @@ export default function ChatPage() {
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 w-full relative z-0">
           <div className="max-w-3xl mx-auto py-8">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-[50vh] text-zinc-500 space-y-4">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+                className="flex flex-col items-center justify-center h-[50vh] text-zinc-500 space-y-4"
+              >
                 <div className="h-16 w-16 bg-zinc-100 dark:bg-zinc-900 rounded-full flex items-center justify-center">
                    <span className="text-2xl h-8 w-8 text-center flex items-center justify-center bg-green-500 rounded-full text-white pt-1">AI</span>
                 </div>
                 <h2 className="text-2xl font-semibold text-zinc-800 dark:text-zinc-200">How can I help plan your trip?</h2>
                 <p className="text-sm">Start by detailing where you want to go, or ask for suggestions!</p>
-              </div>
+              </motion.div>
             ) : (
               messages.map((m, idx) => (
                 <MessageBubble key={idx} role={m.role} content={m.content} />
@@ -232,9 +265,20 @@ export default function ChatPage() {
         </div>
 
         {/* New Chat Modal */}
+        <AnimatePresence>
         {isModalOpen && (
-          <div className="absolute inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm shadow-2xl">
-            <div className="bg-white dark:bg-zinc-900 rounded-lg p-6 w-11/12 max-w-md shadow-xl border border-zinc-200 dark:border-zinc-800">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm shadow-2xl"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white dark:bg-zinc-900 rounded-lg p-6 w-11/12 max-w-md shadow-xl border border-zinc-200 dark:border-zinc-800"
+            >
               <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4">New Conversation</h3>
               <input
                 type="text"
@@ -267,9 +311,10 @@ export default function ChatPage() {
                   {isLoading ? "Creating..." : "Create"}
                 </button>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </main>
     </div>
   );
