@@ -1,18 +1,68 @@
 "use client";
+// Expand on the idea of the main page with a lot more things like a globe rotating from shadcn some interesting things to make the page look more beautiful and interactive. Also add a lot more content to the page to make it look more complete and less empty. Add a lot more sections to the page like a section for testimonials, a section for features, a section for contact us, etc. Make the page look more like a real product landing page with all the necessary sections and content.
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Plane, Map, Compass, MessageSquare } from "lucide-react";
 import { motion } from "framer-motion";
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+
 export default function Home() {
+  const [health, setHealth] = useState(null);
+  const [healthError, setHealthError] = useState("");
+  const [traceId, setTraceId] = useState("");
+  const [traceData, setTraceData] = useState(null);
+  const [traceError, setTraceError] = useState("");
+  const [isTracing, setIsTracing] = useState(false);
+
+  useEffect(() => {
+    fetchHealth();
+  }, []);
+
+  const fetchHealth = async () => {
+    try {
+      const response = await fetch(`${apiUrl}/health`);
+      if (!response.ok) {
+        throw new Error("API health check failed");
+      }
+      const data = await response.json();
+      setHealth(data);
+      setHealthError("");
+    } catch (error) {
+      setHealth(null);
+      setHealthError("Unable to reach backend health endpoint.");
+    }
+  };
+
+  const handleTraceLookup = async () => {
+    if (!traceId.trim()) return;
+    setTraceError("");
+    setTraceData(null);
+    setIsTracing(true);
+
+    try {
+      const response = await fetch(`${apiUrl}/debug/trace/${traceId.trim()}`);
+      if (!response.ok) {
+        throw new Error("Trace request failed");
+      }
+      const data = await response.json();
+      setTraceData(data);
+    } catch (error) {
+      setTraceError("Unable to fetch trace for the provided request id.");
+    } finally {
+      setIsTracing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 overflow-hidden">
       {/* Navigation */}
       <nav className="fixed w-full z-50 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-zinc-200 dark:border-zinc-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Plane className="h-6 w-6 text-zinc-900 dark:text-锌-50" />
+            <Plane className="h-6 w-6 text-zinc-900 dark:text-zinc-50" />
             <span className="font-bold text-xl text-zinc-900 dark:text-zinc-50">TravelAgent</span>
           </div>
           <div className="flex items-center gap-4">
@@ -38,11 +88,11 @@ export default function Home() {
             <span className="flex h-2 w-2 rounded-full bg-green-500 mr-2"></span>
             Agentic AI Powered
           </div>
-          
+
           <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight text-zinc-900 dark:text-zinc-50">
             Plan your next journey with <span className="text-zinc-500">AI precision.</span>
           </h1>
-          
+
           <p className="text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
             Experience the future of travel planning. Chat with our intelligent agent to create personalized itineraries, discover hidden gems, and manage your trips effortlessly.
           </p>
@@ -63,7 +113,7 @@ export default function Home() {
         </motion.div>
 
         {/* Feature Grid */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.2 }}
@@ -83,6 +133,7 @@ export default function Home() {
             </div>
           ))}
         </motion.div>
+
       </main>
     </div>
   );

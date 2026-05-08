@@ -1,4 +1,5 @@
 "use client";
+//For the preference page there will be a logo of hte user for the logo u can take the first alphabet from their email and make it larger and a simple mono colour background also there one person can see their email and some normal interesting things for just fun.
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -23,6 +24,7 @@ const DEFAULT_DIETARY = { budget: "", food_type: "" };
 export default function PreferencesPage() {
   const router = useRouter();
   const [userId, setUserId] = useState(null);
+  const [userEmail, setUserEmail] = useState("");
 
   // dietary_preference is always a dict / JS object
   const [dietary, setDietary] = useState(DEFAULT_DIETARY);
@@ -40,8 +42,10 @@ export default function PreferencesPage() {
   // ─── INIT ────────────────────────────────────────────────────────────────────
   useEffect(() => {
     const stored = localStorage.getItem("user_id");
+    const storedEmail = localStorage.getItem("user_email");
     if (!stored) { router.push("/login"); return; }
     setUserId(stored);
+    setUserEmail(storedEmail || "");
     fetchPreferences(stored);
   }, [router]);
 
@@ -192,8 +196,16 @@ export default function PreferencesPage() {
           transition={{ duration: 0.4 }}
           className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm"
         >
-          <div className="flex items-start justify-between mb-2">
-            <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Travel Profile</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+            <div className="flex items-center gap-4">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-zinc-900 text-3xl font-bold text-white">
+                {userEmail?.[0]?.toUpperCase() || "U"}
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Travel Profile</h2>
+                <p className="text-sm text-zinc-500 dark:text-zinc-400">{userEmail || "Guest traveler"}</p>
+              </div>
+            </div>
             {isExisting && !isFetching && (
               <Button
                 variant="ghost"
