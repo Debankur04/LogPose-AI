@@ -1,5 +1,4 @@
 "use client";
-// Make this page feel like a specialized chat for travel planner and not just a normal chatbot ui. make intereactive elements in the page taking from nature and stuff and even better make some modes like winter summer autumn etc and randomly show a single mode from it with mini interactive features you can use shadcn uiverse and even reactbits for it. also in the top of page put a logout button.
 
 import { useState, useEffect, useRef } from "react";
 import { flushSync } from "react-dom";
@@ -13,54 +12,30 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 const ENABLE_CHAT_STREAMING = process.env.NEXT_PUBLIC_ENABLE_CHAT_STREAMING === "true";
-// const TRAVEL_MODES = [
-//   {
-//     name: "Coastal Explorer",
-//     description: "Find seaside escapes, walking trails and hidden beach cafes for a relaxed travel plan.",
-//   },
-//   {
-//     name: "Mountain Retreat",
-//     description: "Build an itinerary around scenic peaks, cozy cabins, and outdoor adventure spots.",
-//   },
-//   {
-//     name: "City Wanderer",
-//     description: "Discover vibrant neighborhoods, museums, local cuisine and nightlife recommendations.",
-//   },
-//   {
-//     name: "Autumn Escape",
-//     description: "Get travel suggestions themed around fall colors, seasonal events, and crisp atmosphere.",
-//   },
-// ];
 
 export default function ChatPage() {
   const router = useRouter();
 
-  // STATE DEFINITIONS: These variables store data that changes over time.
-  // When they change, React automatically redraws the screen.
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Is the left menu open?
-  const [conversations, setConversations] = useState([]); // Stores the list of previous chats
-  const [activeConversationId, setActiveConversationId] = useState(null); // Which chat are we currently viewing?
-  const [messages, setMessages] = useState([]); // Stores the bubbles (messages) for the current chat
-  const [isLoading, setIsLoading] = useState(false); // Is the AI currently "thinking"?
-  const [userId, setUserId] = useState(null); // The unique ID of the logged-in user
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [conversations, setConversations] = useState([]);
+  const [activeConversationId, setActiveConversationId] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [isLoading, setIsLoading] = useState(false); 
+  const [userId, setUserId] = useState(null); 
   const [userEmail, setUserEmail] = useState("");
-  // const [travelMode, setTravelMode] = useState(TRAVEL_MODES[0]);
   const [modeLabel, setModeLabel] = useState("Coastal Explorer");
 
 
-  // New Chat Modal States
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newChatTitle, setNewChatTitle] = useState("");
 
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    // Check if user is logged in
+
     const storedUserId = localStorage.getItem("user_id");
-    // if (!storedUserId) {
-    //   router.push("/login");
-    //   return;
-    // }
+
     setUserId(storedUserId || "test-user");
     setUserEmail(localStorage.getItem("user_email") || "test@example.com");
 
@@ -360,35 +335,6 @@ export default function ChatPage() {
           isSidebarOpen={isSidebarOpen}
           onSignOut={handleSignOut}
         />
-
-        {/* <div className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/80 px-4 py-4 sm:px-6">
-          <div className="max-w-6xl mx-auto flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-zinc-500 dark:text-zinc-400">Travel mode</p>
-              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-                {travelMode.name}
-              </h2>
-              <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400 max-w-2xl">
-                {travelMode.description}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {TRAVEL_MODES.map((mode) => (
-                <button
-                  key={mode.name}
-                  type="button"
-                  onClick={() => {
-                    setTravelMode(mode);
-                    setModeLabel(mode.name);
-                  }}
-                  className={`rounded-full px-4 py-2 text-xs font-medium transition ${mode.name === modeLabel ? "bg-zinc-900 text-white" : "bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"}`}
-                >
-                  {mode.name}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div> */}
 
         {/* Messages Layout */}
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 w-full relative z-0">
