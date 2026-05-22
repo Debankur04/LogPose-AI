@@ -1,5 +1,4 @@
 "use client";
-//For the preference page there will be a logo of hte user for the logo u can take the first alphabet from their email and make it larger and a simple mono colour background also there one person can see their email and some normal interesting things for just fun.
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -9,7 +8,6 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiClient } from "@/lib/apiClient";
 
-// Safely parse a FastAPI error response into a plain string
 const parseError = (data) => {
   if (!data) return "Something went wrong";
   if (typeof data.detail === "string") return data.detail;
@@ -18,7 +16,6 @@ const parseError = (data) => {
   return "Something went wrong";
 };
 
-// Default empty dietary object
 const DEFAULT_DIETARY = { budget: "", food_type: "" };
 
 export default function PreferencesPage() {
@@ -26,7 +23,6 @@ export default function PreferencesPage() {
   const [userId, setUserId] = useState(null);
   const [userEmail, setUserEmail] = useState("");
 
-  // dietary_preference is always a dict / JS object
   const [dietary, setDietary] = useState(DEFAULT_DIETARY);
   const [customPref, setCustomPref] = useState("");
 
@@ -39,7 +35,7 @@ export default function PreferencesPage() {
   const [isExisting, setIsExisting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // ─── INIT ────────────────────────────────────────────────────────────────────
+
   useEffect(() => {
     const stored = localStorage.getItem("user_id");
     const storedEmail = localStorage.getItem("user_email");
@@ -49,7 +45,7 @@ export default function PreferencesPage() {
     fetchPreferences(stored);
   }, [router]);
 
-  // ─── FETCH ───────────────────────────────────────────────────────────────────
+
   const fetchPreferences = async (uid) => {
     setIsFetching(true);
     try {
@@ -176,17 +172,17 @@ export default function PreferencesPage() {
 
   // ─── UI ──────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 p-4 sm:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 dark:from-amber-950/40 dark:via-orange-950/40 dark:to-rose-950/40 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
 
         {/* Header */}
         <div className="flex items-center gap-4">
           <Link href="/chat">
-            <Button variant="ghost" size="icon" className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50">
+            <Button variant="ghost" size="icon" className="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">Settings &amp; Preferences</h1>
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">Settings &amp; Preferences</h1>
         </div>
 
         {/* Card */}
@@ -194,11 +190,11 @@ export default function PreferencesPage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-sm"
+          className="bg-white dark:bg-zinc-900 rounded-xl border border-orange-200 dark:border-orange-700 p-6 shadow-lg"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-zinc-900 text-3xl font-bold text-white">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-orange-500 to-amber-500 text-3xl font-bold text-white">
                 {userEmail?.[0]?.toUpperCase() || "U"}
               </div>
               <div>

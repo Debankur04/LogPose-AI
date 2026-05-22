@@ -18,13 +18,13 @@ export default function Sidebar({
     <motion.div
       initial={false}
       animate={{ width: isOpen ? 250 : 70 }}
-      className="h-full flex flex-col bg-zinc-50 dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800 transition-all duration-300 relative z-20 flex-shrink-0 origin-left"
+      className="h-full flex flex-col bg-gradient-to-b from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border-r border-orange-200 dark:border-orange-700 transition-all duration-300 relative z-20 flex-shrink-0 origin-left"
     >
-      <div className="flex h-14 items-center justify-between px-3 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="flex h-14 items-center justify-between px-3 border-b border-orange-200 dark:border-orange-700">
         {isOpen && (
           <Button
             variant="ghost"
-            className="flex-1 justify-start overflow-hidden whitespace-nowrap px-2 font-semibold text-zinc-700 dark:text-zinc-200"
+            className="flex-1 justify-start overflow-hidden whitespace-nowrap px-2 font-semibold text-orange-700 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300"
             onClick={onNewChat}
           >
             <Plus className="mr-2 h-4 w-4" />
@@ -37,7 +37,7 @@ export default function Sidebar({
           </Button>
         )}
         {isOpen && (
-          <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} title="Close Sidebar" className="ml-1 flex-shrink-0 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50">
+          <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} title="Close Sidebar" className="ml-1 flex-shrink-0 text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300">
             <PanelLeftClose className="h-5 w-5" />
           </Button>
         )}
@@ -45,7 +45,7 @@ export default function Sidebar({
 
       {!isOpen && (
         <div className="flex justify-center p-3">
-          <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)} title="Open Sidebar" className="text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50">
+          <Button variant="ghost" size="icon" onClick={() => setIsOpen(true)} title="Open Sidebar" className="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300">
             <PanelLeft className="h-5 w-5" />
           </Button>
         </div>
@@ -59,8 +59,8 @@ export default function Sidebar({
             className={cn(
               "w-full flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors group relative",
               activeConversationId === convo.id
-                ? "bg-zinc-200 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50"
-                : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-50"
+                ? "bg-gradient-to-r from-orange-200 to-amber-100 dark:from-orange-700/60 dark:to-amber-700/60 text-orange-900 dark:text-orange-50 font-semibold"
+                : "text-zinc-600 dark:text-zinc-400 hover:bg-orange-100 dark:hover:bg-orange-800/30 hover:text-orange-700 dark:hover:text-orange-300"
             )}
             title={convo.title}
           >

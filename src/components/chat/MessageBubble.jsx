@@ -10,7 +10,7 @@ export default function MessageBubble({ role, content }) {
   return (
     <div className={cn("flex w-full mb-6", isUser ? "justify-end" : "justify-start")}>
       {!isUser && (
-        <div className="flex-shrink-0 h-8 w-8 rounded-full bg-green-500 flex items-center justify-center text-white mr-3 shadow-sm pt-1">
+        <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 flex items-center justify-center text-white mr-3 shadow-md pt-1">
           {/* AI avatar */}
           <span className="text-xs font-bold -mt-1">AI</span>
         </div>
@@ -19,8 +19,8 @@ export default function MessageBubble({ role, content }) {
         className={cn(
           "max-w-[85%] sm:max-w-[75%] px-4 py-3 rounded-2xl",
           isUser
-            ? "bg-zinc-900 text-white rounded-br-sm dark:bg-zinc-100 dark:text-zinc-900"
-            : "bg-white text-zinc-900 border border-zinc-200 shadow-sm rounded-bl-sm dark:bg-zinc-900 dark:text-zinc-100 dark:border-zinc-800"
+            ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-br-sm shadow-md dark:from-orange-600 dark:to-amber-600"
+            : "bg-white text-zinc-900 border border-orange-200 shadow-sm rounded-bl-sm dark:bg-zinc-900 dark:text-zinc-100 dark:border-orange-700"
         )}
       >
         {isUser ? (
@@ -39,7 +39,7 @@ export default function MessageBubble({ role, content }) {
         )}
       </div>
       {isUser && (
-        <div className="flex-shrink-0 h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center text-white ml-3 shadow-sm pt-1">
+        <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center text-white ml-3 shadow-md pt-1">
           <span className="text-xs font-bold tracking-tight -mt-1">US</span>
         </div>
       )}

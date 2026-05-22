@@ -6,16 +6,26 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Eye, EyeOff, AlertCircle } from "lucide-react";
 
 export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    
+    if (password !== confirmPassword) {
+      setMessage("Passwords do not match. Please try again.");
+      return;
+    }
+    
     setLoading(true);
     setMessage("");
 
@@ -45,15 +55,15 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-zinc-950">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 px-4 dark:bg-gradient-to-br dark:from-amber-950 dark:via-orange-950 dark:to-rose-950">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-sm dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800"
+        className="w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-lg border border-orange-200 dark:bg-zinc-900 dark:border-orange-700"
       >
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Create an account</h2>
+          <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">Create an account</h2>
           <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Enter your details below to create your account</p>
         </div>
 
@@ -77,14 +87,53 @@ export default function SignupPage() {
               <label className="mb-2 block text-sm font-medium text-zinc-900 dark:text-zinc-50" htmlFor="password">
                 Password
               </label>
-              <Input
-                id="password"
-                type="password"
-                className='text-black'
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  className='text-black pr-10'
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="mb-2 block text-sm font-medium text-zinc-900 dark:text-zinc-50" htmlFor="confirmPassword">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  className={`text-black pr-14 ${password && confirmPassword && password !== confirmPassword ? 'border-red-500' : ''}`}
+                  required
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-3 text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
+                  title={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+                {password && confirmPassword && password !== confirmPassword && (
+                  <AlertCircle className="absolute right-10 top-3 text-red-500" size={18} />
+                )}
+              </div>
+              {password && confirmPassword && password !== confirmPassword && (
+                <p className="text-xs text-red-500 mt-1">Passwords do not match</p>
+              )}
             </div>
           </div>
 
@@ -94,13 +143,13 @@ export default function SignupPage() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-md hover:shadow-lg transition-all" disabled={loading || (password && confirmPassword && password !== confirmPassword)}>
             {loading ? "Signing up..." : "Sign Up"}
           </Button>
 
           <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
             Already have an account?{" "}
-            <Link href="/login" className="font-semibold text-zinc-900 hover:underline dark:text-zinc-50">
+            <Link href="/login" className="font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300">
               Sign in
             </Link>
           </p>

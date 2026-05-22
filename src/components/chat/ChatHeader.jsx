@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export default function ChatHeader({ activeTitle, onToggleSidebar, isSidebarOpen, onSignOut }) {
   return (
-    <header className="flex h-14 items-center justify-between bg-white px-4 border-b border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800 z-10 w-full relative">
+    <header className="flex h-14 items-center justify-between bg-white dark:bg-zinc-900 px-4 border-b border-orange-200 dark:border-orange-700 z-10 w-full relative shadow-sm">
       <div className="flex items-center gap-3">
         {!isSidebarOpen && (
           <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-zinc-500 dark:text-zinc-400 md:hidden">
@@ -19,7 +19,7 @@ export default function ChatHeader({ activeTitle, onToggleSidebar, isSidebarOpen
       </div>
       <div className="flex items-center gap-2">
         <Link href="/preferences">
-          <Button variant="ghost" size="icon" title="Preferences" className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50">
+          <Button variant="ghost" size="icon" title="Preferences" className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 bg-orange-100 dark:bg-orange-900/40 hover:bg-orange-200 dark:hover:bg-orange-900/60 transition-colors">
             <Settings className="h-5 w-5" />
           </Button>
         </Link>
@@ -28,7 +28,7 @@ export default function ChatHeader({ activeTitle, onToggleSidebar, isSidebarOpen
           size="icon"
           title="Sign out"
           onClick={onSignOut}
-          className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50"
+          className="text-zinc-500 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
         >
           <LogOut className="h-5 w-5" />
         </Button>

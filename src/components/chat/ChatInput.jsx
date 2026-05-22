@@ -34,7 +34,7 @@ export default function ChatInput({ onSendMessage, isLoading }) {
 
   return (
     <div className="p-4 bg-transparent w-full">
-      <div className="max-w-3xl mx-auto relative flex items-end shadow-sm bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl overflow-hidden focus-within:ring-1 focus-within:ring-zinc-900 dark:focus-within:ring-zinc-50">
+      <div className="max-w-3xl mx-auto relative flex items-end shadow-md bg-white dark:bg-zinc-900 border border-orange-200 dark:border-orange-700 rounded-3xl overflow-hidden focus-within:ring-2 focus-within:ring-orange-400 dark:focus-within:ring-orange-500">
         <textarea
           ref={textareaRef}
           value={text}
@@ -50,7 +50,7 @@ export default function ChatInput({ onSendMessage, isLoading }) {
             size="icon"
             onClick={handleSend}
             disabled={!text.trim() || isLoading}
-            className="h-10 w-10 rounded-full transition-all"
+            className="h-10 w-10 rounded-full transition-all bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white disabled:from-zinc-400 disabled:to-zinc-400"
             variant={text.trim() && !isLoading ? "default" : "secondary"}
           >
             {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}

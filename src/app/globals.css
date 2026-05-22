@@ -25,3 +25,13 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Warm travel-themed color palette */
+:root {
+  --warm-orange: #FF8C42;
+  --warm-amber: #FFA500;
+  --warm-coral: #FF6B6B;
+  --warm-sunset: #FFB74D;
+  --warm-earth: #D4A574;
+}
+

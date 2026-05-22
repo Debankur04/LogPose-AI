@@ -314,7 +314,7 @@ export default function ChatPage() {
   const activeTitle = conversations.find(c => c.id === activeConversationId)?.title;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-white dark:bg-zinc-950">
+    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-amber-50 to-white dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
       <Sidebar
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
@@ -346,8 +346,8 @@ export default function ChatPage() {
                 transition={{ duration: 0.4 }}
                 className="flex flex-col items-center justify-center h-[50vh] text-zinc-500 space-y-4"
               >
-                <div className="h-16 w-16 bg-zinc-100 dark:bg-zinc-900 rounded-full flex items-center justify-center">
-                  <span className="text-2xl h-8 w-8 text-center flex items-center justify-center bg-green-500 rounded-full text-white pt-1">AI</span>
+                <div className="h-16 w-16 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-full flex items-center justify-center">
+                  <span className="text-2xl h-8 w-8 text-center flex items-center justify-center bg-gradient-to-br from-orange-400 to-amber-500 rounded-full text-white pt-1">AI</span>
                 </div>
                 <h2 className="text-2xl font-semibold text-zinc-800 dark:text-zinc-200">How can I help plan your trip?</h2>
                 <p className="text-sm">Start by detailing where you want to go, or ask for suggestions!</p>
