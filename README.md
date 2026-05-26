@@ -4,6 +4,7 @@ A modern AI productivity experience for planning tasks, summarizing ideas, and e
 
 - **Live demo site:** https://log-pose-ai.vercel.app
 - **Frontend repository:** https://github.com/Debankur04/LogPose-AI
+- **Backend repository:** https://github.com/Debankur04/Agentic_Planner
 
 ## What LogPose AI Does
 
@@ -59,6 +60,7 @@ npm run start
 
 - **Frontend:** https://github.com/Debankur04/LogPose-AI
 - **Live product:** https://log-pose-ai.vercel.app
+- **Backend repository:** https://github.com/Debankur04/Agentic_Planner
 ## Notes
 
 This repository contains the frontend application only. The backend service powering AI responses is available through the public API endpoint above.
