@@ -2,9 +2,8 @@
 
 A modern AI productivity experience for planning tasks, summarizing ideas, and exploring workflows with a polished Next.js frontend.
 
-- **Live demo site:** https://logpose-ai.onrender.com
+- **Live demo site:** https://log-pose-ai.vercel.app
 - **Frontend repository:** https://github.com/Debankur04/LogPose-AI
-- **Backend API:** https://logpose-ai.onrender.com
 
 ## What LogPose AI Does
 
@@ -59,9 +58,7 @@ npm run start
 ## Project Links
 
 - **Frontend:** https://github.com/Debankur04/LogPose-AI
-- **Live product:** https://logpose-ai.onrender.com
-- **Backend API:** https://logpose-ai.onrender.com
-
+- **Live product:** https://log-pose-ai.vercel.app
 ## Notes
 
 This repository contains the frontend application only. The backend service powering AI responses is available through the public API endpoint above.
