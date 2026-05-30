@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
@@ -22,7 +23,9 @@ export default function SignupPage() {
     e.preventDefault();
     
     if (password !== confirmPassword) {
-      setMessage("Passwords do not match. Please try again.");
+      const errorMessage = "Passwords do not match. Please try again.";
+      setMessage(errorMessage);
+      toast.error(errorMessage);
       return;
     }
     
@@ -40,15 +43,21 @@ export default function SignupPage() {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage("Signup successful! Please login.");
+        const successMessage = "Signup successful! Check your email for confirmation mail.";
+        setMessage(successMessage);
+        toast.success(successMessage);
         setTimeout(() => {
           router.push("/login");
         }, 2000);
       } else {
-        setMessage(data.detail || "Signup failed. Please try again.");
+        const errorMessage = data.detail || data.error || "Signup failed. Please try again.";
+        setMessage(errorMessage);
+        toast.error(errorMessage);
       }
     } catch (error) {
-      setMessage("An error occurred connecting to the server.");
+      const errorMessage = "An error occurred connecting to the server.";
+      setMessage(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

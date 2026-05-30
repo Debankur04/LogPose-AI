@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Eye, EyeOff } from "lucide-react";
@@ -32,19 +33,25 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok && data.user_id) {
-  localStorage.setItem("user_id", data.user_id);
-  localStorage.setItem("user_email", email);
-  localStorage.setItem("access_token", data.access_token);
-  if (data.refresh_token) {
-      localStorage.setItem("refresh_token", data.refresh_token);
-  }
+        localStorage.setItem("user_id", data.user_id);
+        localStorage.setItem("user_email", email);
+        localStorage.setItem("access_token", data.access_token);
+        if (data.refresh_token) {
+          localStorage.setItem("refresh_token", data.refresh_token);
+        }
 
-  router.push("/chat");
-} else {
-  setError(data.error || data.detail || "Login failed. Please check your credentials.");
-}
+        const successMessage = "Login successful!";
+        toast.success(successMessage);
+        router.push("/chat");
+      } else {
+        const errorMessage = data.error || data.detail || "Login failed. Please check your credentials.";
+        setError(errorMessage);
+        toast.error(errorMessage);
+      }
     } catch (err) {
-      setError("An error occurred connecting to the server.");
+      const errorMessage = "An error occurred connecting to the server.";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
