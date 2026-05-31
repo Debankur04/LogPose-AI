@@ -34,14 +34,14 @@ export default function ChatInput({ onSendMessage, isLoading }) {
 
   return (
     <div className="p-4 bg-transparent w-full">
-      <div className="max-w-3xl mx-auto relative flex items-end shadow-md bg-white dark:bg-zinc-900 border border-orange-200 dark:border-orange-700 rounded-3xl overflow-hidden focus-within:ring-2 focus-within:ring-orange-400 dark:focus-within:ring-orange-500">
+      <div className="max-w-3xl mx-auto relative flex items-end shadow-md bg-slate-950 border border-slate-800 rounded-3xl overflow-hidden focus-within:ring-2 focus-within:ring-cyan-500">
         <textarea
           ref={textareaRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Type your message..."
-          className="w-full max-h-[200px] bg-transparent resize-none overflow-y-auto px-5 py-4 focus:outline-none text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-500 text-[15px]"
+          className="w-full max-h-50 bg-transparent resize-none overflow-y-auto px-5 py-4 focus:outline-none text-slate-100 placeholder:text-slate-500 text-[15px]"
           rows={1}
           disabled={isLoading}
         />
@@ -50,7 +50,7 @@ export default function ChatInput({ onSendMessage, isLoading }) {
             size="icon"
             onClick={handleSend}
             disabled={!text.trim() || isLoading}
-            className="h-10 w-10 rounded-full transition-all bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white disabled:from-zinc-400 disabled:to-zinc-400"
+            className="h-10 w-10 rounded-full transition-all bg-linear-to-r from-cyan-500 to-teal-400 hover:from-cyan-400 hover:to-teal-300 text-slate-950 disabled:bg-slate-700 disabled:text-slate-300"
             variant={text.trim() && !isLoading ? "default" : "secondary"}
           >
             {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}

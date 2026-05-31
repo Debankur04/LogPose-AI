@@ -6,20 +6,20 @@ import { Button } from "@/components/ui/button";
 
 export default function ChatHeader({ activeTitle, onToggleSidebar, isSidebarOpen, onSignOut }) {
   return (
-    <header className="flex h-14 items-center justify-between bg-white dark:bg-zinc-900 px-4 border-b border-orange-200 dark:border-orange-700 z-10 w-full relative shadow-sm">
+    <header className="flex h-14 items-center justify-between bg-slate-950 px-4 border-b border-slate-800 z-10 w-full relative shadow-sm">
       <div className="flex items-center gap-3">
         {!isSidebarOpen && (
-          <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-zinc-500 dark:text-zinc-400 md:hidden">
+          <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="text-slate-400 hover:text-cyan-300 md:hidden transition-colors">
             <PanelLeft className="h-5 w-5" />
           </Button>
         )}
-        <h1 className="font-semibold text-zinc-900 dark:text-zinc-50 truncate max-w-[200px] sm:max-w-md">
+        <h1 className="font-semibold text-slate-100 truncate max-w-50 sm:max-w-md">
           {activeTitle || "Select a conversation"}
         </h1>
       </div>
       <div className="flex items-center gap-2">
         <Link href="/preferences">
-          <Button variant="ghost" size="icon" title="Preferences" className="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-50 bg-orange-100 dark:bg-orange-900/40 hover:bg-orange-200 dark:hover:bg-orange-900/60 transition-colors">
+          <Button variant="ghost" size="icon" title="Preferences" className="text-slate-200 hover:text-cyan-300 bg-slate-900/80 hover:bg-slate-800 transition-colors">
             <Settings className="h-5 w-5" />
           </Button>
         </Link>
@@ -28,7 +28,7 @@ export default function ChatHeader({ activeTitle, onToggleSidebar, isSidebarOpen
           size="icon"
           title="Sign out"
           onClick={onSignOut}
-          className="text-zinc-500 dark:text-zinc-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+          className="text-slate-400 hover:text-cyan-300 hover:bg-slate-800 transition-colors"
         >
           <LogOut className="h-5 w-5" />
         </Button>

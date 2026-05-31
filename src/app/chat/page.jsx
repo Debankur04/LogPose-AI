@@ -314,7 +314,7 @@ export default function ChatPage() {
   const activeTitle = conversations.find(c => c.id === activeConversationId)?.title;
 
   return (
-    <div className="flex h-screen overflow-hidden bg-gradient-to-br from-orange-50 via-amber-50 to-white dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950">
+    <div className="flex h-screen overflow-hidden bg-slate-950 text-slate-100">
       <Sidebar
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
@@ -346,11 +346,11 @@ export default function ChatPage() {
                 transition={{ duration: 0.4 }}
                 className="flex flex-col items-center justify-center h-[50vh] text-zinc-500 space-y-4"
               >
-                <div className="h-16 w-16 bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30 rounded-full flex items-center justify-center">
-                  <span className="text-2xl h-8 w-8 text-center flex items-center justify-center bg-gradient-to-br from-orange-400 to-amber-500 rounded-full text-white pt-1">AI</span>
+                <div className="h-16 w-16 bg-linear-to-br from-cyan-500 to-teal-400 rounded-full flex items-center justify-center shadow-lg">
+                  <span className="text-2xl h-8 w-8 text-center flex items-center justify-center rounded-full bg-slate-950 text-cyan-300">AI</span>
                 </div>
-                <h2 className="text-2xl font-semibold text-zinc-800 dark:text-zinc-200">How can I help plan your trip?</h2>
-                <p className="text-sm">Start by detailing where you want to go, or ask for suggestions!</p>
+                <h2 className="text-2xl font-semibold text-slate-100">Ready to plan your next trip?</h2>
+                <p className="text-sm text-slate-400">Tell LogPose where you want to go and get a smart itinerary instantly.</p>
               </motion.div>
             ) : (
               messages.map((m, idx) => (
@@ -362,7 +362,7 @@ export default function ChatPage() {
         </div>
 
         {/* Input Layout */}
-        <div className="w-full bg-linear-to-t from-white via-white dark:from-zinc-950 dark:via-zinc-950 to-transparent pb-4 pt-10 relative z-10">
+        <div className="w-full bg-slate-950/95 pb-4 pt-10 relative z-10 border-t border-slate-800">
           <ChatInput onSendMessage={handleSendMessage} isLoading={isLoading} />
         </div>
 
@@ -373,7 +373,7 @@ export default function ChatPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm shadow-2xl"
+              className="absolute inset-0 z-100 flex items-center justify-center bg-black/50 backdrop-blur-sm shadow-2xl"
             >
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
@@ -408,7 +408,7 @@ export default function ChatPage() {
                   <button
                     onClick={confirmNewChat}
                     disabled={!newChatTitle.trim() || isLoading}
-                    className="px-4 py-2 rounded-md text-sm font-medium bg-zinc-900 dark:bg-zinc-50 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-4 py-2 rounded-md text-sm font-medium bg-cyan-500 text-slate-950 hover:bg-cyan-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isLoading ? "Creating..." : "Create"}
                   </button>

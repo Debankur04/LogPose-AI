@@ -172,17 +172,17 @@ export default function PreferencesPage() {
 
   // ─── UI ──────────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 dark:from-amber-950/40 dark:via-orange-950/40 dark:to-rose-950/40 p-4 sm:p-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-4 sm:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
 
         {/* Header */}
         <div className="flex items-center gap-4">
           <Link href="/chat">
-            <Button variant="ghost" size="icon" className="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300">
+            <Button variant="ghost" size="icon" className="text-slate-300 hover:text-cyan-300 bg-slate-900/80 hover:bg-slate-800 transition-colors">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">Settings &amp; Preferences</h1>
+          <h1 className="text-2xl font-bold text-white">Settings &amp; Preferences</h1>
         </div>
 
         {/* Card */}
@@ -190,16 +190,16 @@ export default function PreferencesPage() {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
-          className="bg-white dark:bg-zinc-900 rounded-xl border border-orange-200 dark:border-orange-700 p-6 shadow-lg"
+          className="bg-slate-900 rounded-xl border border-slate-800 p-6 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.8)]"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
             <div className="flex items-center gap-4">
-              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-orange-500 to-amber-500 text-3xl font-bold text-white">
+              <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-linear-to-br from-cyan-500 to-sky-500 text-3xl font-bold text-white">
                 {userEmail?.[0]?.toUpperCase() || "U"}
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Travel Profile</h2>
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">{userEmail || "Guest traveler"}</p>
+                <h2 className="text-xl font-semibold text-white">Travel Profile</h2>
+                <p className="text-sm text-slate-400">{userEmail || "Guest traveler"}</p>
               </div>
             </div>
             {isExisting && !isFetching && (
@@ -207,29 +207,29 @@ export default function PreferencesPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 gap-1.5"
+                className="text-rose-400 hover:text-rose-300 hover:bg-rose-950/40 gap-1.5"
               >
                 <Trash2 className="h-4 w-4" />
                 Delete Preferences
               </Button>
             )}
           </div>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-6">
+          <p className="text-sm text-slate-400 mb-6">
             Help the AI tailor better itineraries for you. Your dietary preferences are saved as structured data.
           </p>
 
           {/* Delete confirm banner */}
           {showDeleteConfirm && (
-            <div className="mb-6 p-4 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              <p className="text-sm text-red-700 dark:text-red-400 font-medium">
+            <div className="mb-6 p-4 rounded-lg bg-rose-950/30 border border-rose-900 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <p className="text-sm text-rose-300 font-medium">
                 Are you sure? This will permanently delete all your preferences.
               </p>
-              <div className="flex gap-2 flex-shrink-0">
+              <div className="flex gap-2 shrink-0">
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => setShowDeleteConfirm(false)}
-                  className="border-zinc-300 dark:border-zinc-700 text-black"
+                  className="border-slate-700 text-slate-100 hover:text-white"
                 >
                   Cancel
                 </Button>
@@ -237,7 +237,7 @@ export default function PreferencesPage() {
                   size="sm"
                   onClick={handleDelete}
                   disabled={isLoading}
-                  className="bg-red-500 hover:bg-red-600 text-white"
+                  className="bg-rose-500 hover:bg-rose-600 text-white"
                 >
                   {isLoading ? "Deleting…" : "Yes, Delete"}
                 </Button>
@@ -248,24 +248,24 @@ export default function PreferencesPage() {
           {/* Loading skeleton */}
           {isFetching ? (
             <div className="space-y-4 animate-pulse">
-              <div className="h-10 rounded-md bg-zinc-100 dark:bg-zinc-800" />
-              <div className="h-10 rounded-md bg-zinc-100 dark:bg-zinc-800" />
-              <div className="h-20 rounded-md bg-zinc-100 dark:bg-zinc-800" />
+              <div className="h-10 rounded-md bg-slate-800" />
+              <div className="h-10 rounded-md bg-slate-800" />
+              <div className="h-20 rounded-md bg-slate-800" />
             </div>
           ) : (
             <form onSubmit={handleSave} className="space-y-6">
 
               {/* ── Dietary preferences (structured) ── */}
               <fieldset className="space-y-3">
-                <legend className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-2">
+                <legend className="text-sm font-medium text-slate-300 mb-2">
                   Dietary / Travel Preferences
                 </legend>
 
                 {/* Budget */}
                 <div className="flex gap-3 items-center">
-                  <span className="w-28 shrink-0 text-xs text-zinc-500 dark:text-zinc-400">Budget</span>
+                  <span className="w-28 shrink-0 text-xs text-slate-400">Budget</span>
                   <input
-                    className="flex-1 h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-50"
+                    className="flex-1 h-9 rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     placeholder="e.g. cheap, mid-range, luxury"
                     value={dietary.budget}
                     onChange={(e) => setDietary((prev) => ({ ...prev, budget: e.target.value }))}
@@ -274,9 +274,9 @@ export default function PreferencesPage() {
 
                 {/* Food type */}
                 <div className="flex gap-3 items-center">
-                  <span className="w-28 shrink-0 text-xs text-zinc-500 dark:text-zinc-400">Food type</span>
+                  <span className="w-28 shrink-0 text-xs text-slate-400">Food type</span>
                   <input
-                    className="flex-1 h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-50"
+                    className="flex-1 h-9 rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     placeholder="e.g. street food, vegetarian, halal"
                     value={dietary.food_type}
                     onChange={(e) => setDietary((prev) => ({ ...prev, food_type: e.target.value }))}
@@ -294,13 +294,13 @@ export default function PreferencesPage() {
                     className="flex gap-3 items-center"
                   >
                     <input
-                      className="w-28 shrink-0 h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-50"
+                      className="w-28 shrink-0 h-9 rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                       placeholder="key"
                       value={entry.key}
                       onChange={(e) => updateExtraKey(idx, "key", e.target.value)}
                     />
                     <input
-                      className="flex-1 h-9 rounded-md border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3 text-sm text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-50"
+                      className="flex-1 h-9 rounded-md border border-slate-800 bg-slate-950 px-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                       placeholder="value"
                       value={entry.value}
                       onChange={(e) => updateExtraKey(idx, "value", e.target.value)}
@@ -308,7 +308,7 @@ export default function PreferencesPage() {
                     <button
                       type="button"
                       onClick={() => removeExtraKey(idx)}
-                      className="p-1.5 rounded-md text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors"
+                      className="p-1.5 rounded-md text-slate-400 hover:text-rose-300 hover:bg-rose-950/30 transition-colors"
                     >
                       <X className="h-4 w-4" />
                     </button>
@@ -320,7 +320,7 @@ export default function PreferencesPage() {
                 <button
                   type="button"
                   onClick={addExtraKey}
-                  className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-50 transition-colors mt-1"
+                  className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-cyan-300 transition-colors mt-1"
                 >
                   <Plus className="h-3.5 w-3.5" />
                   Add custom field
@@ -329,12 +329,12 @@ export default function PreferencesPage() {
 
               {/* ── Additional details ── */}
               <div className="space-y-2">
-                <label htmlFor="custom" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                <label htmlFor="custom" className="block text-sm font-medium text-slate-200">
                   Additional Details (interests, accessibility…)
                 </label>
                 <textarea
                   id="custom"
-                  className="w-full border border-zinc-200 dark:border-zinc-800 rounded-md px-3 py-2 text-sm min-h-[100px] bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900 dark:focus:ring-zinc-50 resize-y"
+                  className="w-full border border-slate-800 rounded-md px-3 py-2 text-sm min-h-25 bg-slate-950 text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-y"
                   placeholder="e.g. I love museums, need wheelchair-accessible routes…"
                   value={customPref}
                   onChange={(e) => setCustomPref(e.target.value)}
@@ -345,8 +345,8 @@ export default function PreferencesPage() {
               {status.message && (
                 <div className={`p-3 rounded-md text-sm transition-all ${
                   status.type === "success"
-                    ? "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                    : "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                    ? "bg-emerald-950/40 text-emerald-300"
+                    : "bg-rose-950/40 text-rose-300"
                 }`}>
                   {status.message}
                 </div>
@@ -354,7 +354,7 @@ export default function PreferencesPage() {
 
               {/* Save button */}
               <div className="flex justify-end">
-                <Button type="submit" disabled={isLoading} className="gap-2 min-w-[160px]">
+                <Button type="submit" disabled={isLoading} className="gap-2 min-w-40">
                   {isLoading ? (
                     <>
                       <span className="animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full" />

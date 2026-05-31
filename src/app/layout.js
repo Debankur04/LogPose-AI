@@ -3,6 +3,8 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import "./globals.css";
 import ToastProvider from "@/components/ToastProvider";
 
+// I want you to create a middleware that protects all the pages until you have a token other than mian page and auth pages. if anyone tries to enter them route them to auth pages
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -24,7 +26,7 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col bg-[#05060a] text-slate-100">
         {children}
         <ToastProvider />
         <SpeedInsights />

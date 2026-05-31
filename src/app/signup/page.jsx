@@ -64,22 +64,22 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50 px-4 dark:bg-gradient-to-br dark:from-amber-950 dark:via-orange-950 dark:to-rose-950">
+    <div className="flex min-h-screen items-center justify-center bg-[#02060d] px-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-md space-y-8 rounded-xl bg-white p-8 shadow-lg border border-orange-200 dark:bg-zinc-900 dark:border-orange-700"
+        className="w-full max-w-md space-y-8 rounded-3xl bg-slate-950 p-10 shadow-[0_20px_80px_rgba(0,0,0,0.45)] border border-slate-800"
       >
         <div className="text-center">
-          <h2 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-amber-600 to-orange-600 dark:from-amber-400 dark:to-orange-400 bg-clip-text text-transparent">Create an account</h2>
-          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">Enter your details below to create your account</p>
+          <h2 className="text-3xl font-bold tracking-tight bg-linear-to-r from-cyan-400 to-slate-200 bg-clip-text text-transparent">Create an account</h2>
+          <p className="mt-2 text-sm text-slate-400">Join LogPose and unlock smarter travel planning.</p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSignup}>
           <div className="space-y-4">
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-900 dark:text-zinc-50" htmlFor="email">
+              <label className="mb-2 block text-sm font-medium text-slate-200" htmlFor="email">
                 Email
               </label>
               <Input
@@ -93,7 +93,7 @@ export default function SignupPage() {
               />
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-900 dark:text-zinc-50" htmlFor="password">
+              <label className="mb-2 block text-sm font-medium text-slate-200" htmlFor="password">
                 Password
               </label>
               <div className="relative">
@@ -108,7 +108,7 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
+                  className="absolute right-3 top-3 text-slate-400 hover:text-cyan-300 transition-colors"
                   title={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -116,7 +116,7 @@ export default function SignupPage() {
               </div>
             </div>
             <div>
-              <label className="mb-2 block text-sm font-medium text-zinc-900 dark:text-zinc-50" htmlFor="confirmPassword">
+              <label className="mb-2 block text-sm font-medium text-slate-200" htmlFor="confirmPassword">
                 Confirm Password
               </label>
               <div className="relative">
@@ -131,7 +131,7 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3 text-zinc-500 hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
+                  className="absolute right-3 top-3 text-slate-400 hover:text-cyan-300 transition-colors"
                   title={showConfirmPassword ? "Hide password" : "Show password"}
                 >
                   {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -152,13 +152,13 @@ export default function SignupPage() {
             </div>
           )}
 
-          <Button type="submit" className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold shadow-md hover:shadow-lg transition-all" disabled={loading || (password && confirmPassword && password !== confirmPassword)}>
+          <Button type="submit" className="w-full bg-linear-to-r from-cyan-500 to-teal-400 hover:from-cyan-400 hover:to-teal-500 text-slate-950 font-semibold shadow-lg transition-all" disabled={loading || (password && confirmPassword && password !== confirmPassword)}>
             {loading ? "Signing up..." : "Sign Up"}
           </Button>
 
-          <p className="text-center text-sm text-zinc-500 dark:text-zinc-400">
+          <p className="text-center text-sm text-slate-400">
             Already have an account?{" "}
-            <Link href="/login" className="font-semibold text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300">
+            <Link href="/login" className="font-semibold text-cyan-300 hover:text-cyan-200">
               Sign in
             </Link>
           </p>
