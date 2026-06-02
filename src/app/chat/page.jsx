@@ -129,11 +129,12 @@ export default function ChatPage() {
     }
 
     const userMessage = { role: "user", content: text };
-    setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "" }]);
+    setMessages((prev) => [...prev, userMessage, { role: "assistant", content: "", isPhase: false }]);
     setIsLoading(true);
 
     try {
-      const response = await apiClient(`/query`, {
+      const endpoint = ENABLE_CHAT_STREAMING ? `/sse_query` : `/query`;
+      const response = await apiClient(endpoint, {
         method: "POST",
         body: JSON.stringify({
           user_id: userId,
@@ -149,7 +150,7 @@ export default function ChatPage() {
       if (!ENABLE_CHAT_STREAMING) {
         const fallback = await response.json();
         const aiResponse =
-          fallback.reply || fallback.answer || "No response found.";
+          fallback.data?.reply || fallback.reply || fallback.answer || "No response found.";
 
         setMessages((prev) => [
           ...prev.slice(0, -1),
@@ -164,7 +165,7 @@ export default function ChatPage() {
       if (!reader) {
         const fallback = await response.json();
         const aiResponse =
-          fallback.reply || fallback.answer || "No response found.";
+          fallback.data?.reply || fallback.reply || fallback.answer || "No response found.";
 
         setMessages((prev) => [
           ...prev.slice(0, -1),
@@ -202,9 +203,38 @@ export default function ChatPage() {
 
           try {
             const event = JSON.parse(payload);
+            
+            if (event.type === "phase") {
+              let phaseText = "✨ Agent planning perfect trips for you...";
+              if (event.phase === "validator") phaseText = "🕵️‍♂️ Validating your travel requirements...";
+              else if (event.phase === "writer") phaseText = "📝 Drafting your perfect itinerary...";
+              else if (event.phase === "intake") phaseText = "📥 Processing your request...";
+              else if (event.phase === "research") phaseText = "🔍 Researching the best destinations...";
+
+              flushSync(() => {
+                setMessages((prev) => {
+                  const updated = [...prev];
+                  const lastMessage = updated[updated.length - 1];
+
+                  if (lastMessage && lastMessage.role === "assistant") {
+                    updated[updated.length - 1] = {
+                      ...lastMessage,
+                      content: phaseText,
+                      isPhase: true,
+                    };
+                  }
+
+                  return updated;
+                });
+              });
+              continue;
+            }
+
             let contentToAdd = "";
 
-            if (event.type === "chunk" && event.content) {
+            if (event.type === "answer_chunk" && event.content) {
+              contentToAdd = event.content;
+            } else if (event.type === "chunk" && event.content) {
               contentToAdd = event.content;
             } else if (event.final_reply) {
               contentToAdd = event.final_reply;
@@ -222,9 +252,11 @@ export default function ChatPage() {
                     const lastMessage = updated[updated.length - 1];
 
                     if (lastMessage && lastMessage.role === "assistant") {
+                      const newContent = lastMessage.isPhase ? word : lastMessage.content + word;
                       updated[updated.length - 1] = {
                         ...lastMessage,
-                        content: lastMessage.content + word,
+                        content: newContent,
+                        isPhase: false
                       };
                     }
 
@@ -233,7 +265,7 @@ export default function ChatPage() {
                 });
 
                 // Delay after each word
-                await sleep(300);
+                await sleep(50);
               }
             }
           } catch (err) {

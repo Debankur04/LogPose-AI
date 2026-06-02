@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { supabase } from "@/lib/supabaseClient";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
@@ -57,6 +58,25 @@ export default function LoginPage() {
     }
   };
 
+  const handleOAuth = async () => {
+    const provider = process.env.NEXT_PUBLIC_SUPABASE_OAUTH_PROVIDER || "google";
+    const redirectTo = `${window.location.origin}/auth/callback`;
+
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      toast.error("Supabase is not configured. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.");
+      return;
+    }
+
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo },
+    });
+
+    if (error) {
+      toast.error(error.message);
+    }
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#02060d] px-4">
       <motion.div 
@@ -80,7 +100,7 @@ export default function LoginPage() {
                 id="email"
                 type="email"
                 placeholder="m@example.com"
-                className='text-black'
+                className='text-slate-950 caret-black'
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -94,7 +114,7 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  className='text-black pr-10'
+                  className='text-slate-950 caret-black placeholder:text-slate-500 pr-10'
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -102,7 +122,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-slate-400 hover:text-cyan-300 transition-colors"
+                  className="absolute right-3 top-3 text-black hover:text-slate-700 transition-colors"
                   title={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -116,6 +136,12 @@ export default function LoginPage() {
           <Button type="submit" className="w-full bg-linear-to-r from-cyan-500 to-teal-400 hover:from-cyan-400 hover:to-teal-500 text-slate-950 font-semibold shadow-lg transition-all" disabled={loading}>
             {loading ? "Signing in..." : "Sign In"}
           </Button>
+
+          <div className="mt-4">
+            <Button type="button" onClick={handleOAuth} className="w-full bg-linear-to-r from-cyan-500 to-teal-400 hover:from-cyan-600 hover:to-teal-500 text-slate-950 font-semibold shadow-lg">
+              Continue with OAuth Provider
+            </Button>
+          </div>
 
           <p className="text-center text-sm text-slate-400">
             Don't have an account?{" "}

@@ -44,7 +44,7 @@ const destinations = [
   },
 ];
 
-// Testimonials
+// Sample testimonials
 const testimonials = [
   {
     name: "Sarah Miller",
@@ -341,7 +341,7 @@ export default function Home() {
                 See what our community has to say
               </p>
             </div>
-
+ 
             <div className="grid md:grid-cols-3 gap-8">
               {testimonials.map((testimonial, i) => (
                 <motion.div
@@ -366,7 +366,7 @@ export default function Home() {
                   </div>
                 </motion.div>
               ))}
-            </div>
+            </div> 
           </section>
 
           {/* CTA Section */}
@@ -379,12 +379,10 @@ export default function Home() {
             >
               <Plane className="h-16 w-16 mx-auto text-white mb-6" />
               <h2 className="text-5xl font-bold text-white mb-4">Ready to Explore the World?</h2>
-              <p className="text-xl text-slate-200 max-w-2xl mx-auto mb-8">
-                Join thousands of travelers already discovering their next adventure with LogPose AI
-              </p>
+              <p className="text-xl text-slate-200 max-w-2xl mx-auto mb-8">Join thousands of travelers already discovering their next adventure with LogPose AI</p>
               <div className="flex gap-4 justify-center">
                 <Link href="/signup">
-                  <Button size="lg" className="h-12 px-8 text-base bg-slate-100 text-slate-950 hover:bg-slate-200 shadow-lg font-semibold">
+                  <Button size="lg" className="h-12 px-8 text-base bg-linear-to-r from-cyan-500 to-teal-400 hover:from-cyan-600 hover:to-teal-500 text-slate-950 shadow-lg font-semibold">
                     Get Started Free
                   </Button>
                 </Link>
@@ -393,54 +391,52 @@ export default function Home() {
           </section>
         </div>
       </main>
-
-      {/* Footer */}
       <footer className="border-t border-slate-800 bg-[#02050d]/90 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="h-6 w-6 rounded-full bg-linear-to-br from-cyan-500 to-teal-400 flex items-center justify-center">
-                  <Plane className="h-4 w-4 text-slate-950" />
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
+                <div>
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="h-6 w-6 rounded-full bg-linear-to-br from-cyan-500 to-teal-400 flex items-center justify-center">
+                      <Plane className="h-4 w-4 text-slate-950" />
+                    </div>
+                    <span className="font-bold text-slate-100">LogPose</span>
+                  </div>
+                  <p className="text-sm text-slate-400">Agentic AI travel planning for everyone.</p>
                 </div>
-                <span className="font-bold text-slate-100">LogPose</span>
+                <div>
+                  <h4 className="font-semibold text-slate-100 mb-4">Product</h4>
+                  <ul className="space-y-2 text-sm text-slate-400">
+                    <li><Link href="/chat" className="hover:text-cyan-300">Start Planning</Link></li>
+                    <li><Link href="#features" className="hover:text-cyan-300">Features</Link></li>
+                    <li><Link href="#how-it-works" className="hover:text-cyan-300">How It Works</Link></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-100 mb-4">Company</h4>
+                  <ul className="space-y-2 text-sm text-slate-400">
+                    <li><Link href="/AboutUs" className="hover:text-cyan-300">About Us</Link></li>
+                    <li><Link href="/Blog" className="hover:text-cyan-300">Blog</Link></li>
+                    <li><Link href="/Contact" className="hover:text-cyan-300">Contact</Link></li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-100 mb-4">Legal</h4>
+                  <ul className="space-y-2 text-sm text-slate-400">
+                    <li><Link href="/Privacy" className="hover:text-cyan-300">Privacy</Link></li>
+                    <li><Link href="/Terms" className="hover:text-cyan-300">Terms</Link></li>
+                  </ul>
+                </div>
               </div>
-              <p className="text-sm text-slate-400">Agentic AI travel planning for everyone.</p>
+              <div className="border-t border-slate-800 pt-8 flex flex-col gap-4 lg:flex-row justify-between items-center text-sm text-slate-400">
+                <p>&copy; 2026 LogPose AI. All rights reserved.</p>
+                <div className="flex gap-4">
+                  <a href="https://twitter.com" className="hover:text-cyan-300">Twitter</a>
+                  <a href="https://linkedin.com" className="hover:text-cyan-300">LinkedIn</a>
+                  <a href="https://instagram.com" className="hover:text-cyan-300">Instagram</a>
+                </div>
+              </div>
             </div>
-            <div>
-              <h4 className="font-semibold text-slate-100 mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link href="/chat" className="hover:text-cyan-300">Start Planning</Link></li>
-                <li><Link href="#features" className="hover:text-cyan-300">Features</Link></li>
-                <li><Link href="#how-it-works" className="hover:text-cyan-300">How It Works</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-100 mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link href="/AboutUs" className="hover:text-cyan-300">About Us</Link></li>
-                <li><Link href="/Blog" className="hover:text-cyan-300">Blog</Link></li>
-                <li><Link href="/Contact" className="hover:text-cyan-300">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-slate-100 mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li><Link href="/Privacy" className="hover:text-cyan-300">Privacy</Link></li>
-                <li><Link href="/Terms" className="hover:text-cyan-300">Terms</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-slate-800 pt-8 flex flex-col gap-4 lg:flex-row justify-between items-center text-sm text-slate-400">
-            <p>&copy; 2026 LogPose AI. All rights reserved.</p>
-            <div className="flex gap-4">
-              <a href="https://twitter.com" className="hover:text-cyan-300">Twitter</a>
-              <a href="https://linkedin.com" className="hover:text-cyan-300">LinkedIn</a>
-              <a href="https://instagram.com" className="hover:text-cyan-300">Instagram</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+          </footer>
     </div>
   );
 }
