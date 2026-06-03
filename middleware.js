@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 // Protect pages: allow only public routes without token
 // Public routes: main page and auth pages
-const PUBLIC_PATHS = ['/', '/login', '/signup', '/Terms', '/Privacy', '/AboutUs', '/Contact', '/Blog', '/favicon.ico'];
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/auth/callback', '/Terms', '/Privacy', '/AboutUs', '/Contact', '/Blog', '/favicon.ico'];
 
 export function middleware(req) {
   const { pathname } = req.nextUrl;

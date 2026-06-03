@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { supabase } from "@/lib/supabaseClient";
+import { persistAuthSession, supabase } from "@/lib/supabaseClient";
 import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
@@ -34,12 +34,12 @@ export default function LoginPage() {
       const data = await response.json();
 
       if (response.ok && data.user_id) {
-        localStorage.setItem("user_id", data.user_id);
-        localStorage.setItem("user_email", email);
-        localStorage.setItem("access_token", data.access_token);
-        if (data.refresh_token) {
-          localStorage.setItem("refresh_token", data.refresh_token);
-        }
+        persistAuthSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+          user_id: data.user_id,
+          user_email: email,
+        });
 
         const successMessage = "Login successful!";
         toast.success(successMessage);

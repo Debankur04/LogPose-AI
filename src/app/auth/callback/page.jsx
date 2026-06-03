@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { supabase } from "@/lib/supabaseClient";
+import { persistAuthSession, supabase } from "@/lib/supabaseClient";
 
 export default function OAuthCallbackPage() {
   const router = useRouter();
@@ -15,11 +15,23 @@ export default function OAuthCallbackPage() {
     const exchange = async () => {
       try {
         let sessionData = null;
+        const code = new URLSearchParams(window.location.search).get("code");
+
+        if (code) {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+          if (error) {
+            toast.error(error.message || "OAuth callback failed.");
+            setLoading(false);
+            return;
+          }
+
+          sessionData = data?.session || null;
+        }
         
-        // Supabase v2 handles PKCE code exchange or implicit flow parsing automatically 
-        // in many cases, but if there's a code, we might need to exchange it manually 
-        // if SSR was configured, or we can just get the session if the client already parsed it.
-        const { data, error } = await supabase.auth.getSession();
+        const { data, error } = sessionData
+          ? { data: null, error: null }
+          : await supabase.auth.getSession();
 
         if (error) {
           toast.error(error.message || "OAuth callback failed.");
@@ -32,17 +44,17 @@ export default function OAuthCallbackPage() {
         } else {
           // If no session is immediately available, check for auth state change
           // because parsing the hash could be asynchronous
+          let authSubscription = null;
           const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
             if (event === 'SIGNED_IN' && session) {
-              if (session.access_token) localStorage.setItem("access_token", session.access_token);
-              if (session.refresh_token) localStorage.setItem("refresh_token", session.refresh_token);
-              if (session.user?.id) localStorage.setItem("user_id", session.user.id);
-              if (session.user?.email) localStorage.setItem("user_email", session.user.email);
+              persistAuthSession(session);
               
               toast.success("Logged in via OAuth");
+              authSubscription?.unsubscribe();
               router.push("/chat");
             }
           });
+          authSubscription = authListener.subscription;
           
           // Wait a moment to see if it resolves, but usually getSession() works if hash is present
           // For safety, we will just return here if we added the listener, 
@@ -50,18 +62,7 @@ export default function OAuthCallbackPage() {
         }
 
         if (sessionData) {
-          if (sessionData.access_token) {
-            localStorage.setItem("access_token", sessionData.access_token);
-          }
-          if (sessionData.refresh_token) {
-            localStorage.setItem("refresh_token", sessionData.refresh_token);
-          }
-          if (sessionData.user?.id) {
-            localStorage.setItem("user_id", sessionData.user.id);
-          }
-          if (sessionData.user?.email) {
-            localStorage.setItem("user_email", sessionData.user.email);
-          }
+          persistAuthSession(sessionData);
 
           toast.success("Logged in via OAuth");
           router.push("/chat");
@@ -71,7 +72,7 @@ export default function OAuthCallbackPage() {
         // If we reach here and there is a hash, the listener might pick it up.
         // Otherwise, it's a failure.
         // We won't show an error immediately if there's a hash, to give the listener a chance.
-        if (!window.location.hash) {
+        if (!window.location.hash && !code) {
           toast.error("OAuth callback did not return a valid session.");
         }
       } catch (err) {

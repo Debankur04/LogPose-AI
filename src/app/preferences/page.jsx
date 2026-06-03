@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiClient } from "@/lib/apiClient";
+import { getAuthSession } from "@/lib/supabaseClient";
 
 const parseError = (data) => {
   if (!data) return "Something went wrong";
@@ -37,12 +38,20 @@ export default function PreferencesPage() {
 
 
   useEffect(() => {
-    const stored = localStorage.getItem("user_id");
-    const storedEmail = localStorage.getItem("user_email");
-    if (!stored) { router.push("/login"); return; }
-    setUserId(stored);
-    setUserEmail(storedEmail || "");
-    fetchPreferences(stored);
+    const loadSession = async () => {
+      const session = await getAuthSession();
+
+      if (!session?.userId) {
+        router.push("/login");
+        return;
+      }
+
+      setUserId(session.userId);
+      setUserEmail(session.userEmail || "");
+      fetchPreferences(session.userId);
+    };
+
+    loadSession();
   }, [router]);
 
 

@@ -1,9 +1,27 @@
 // A unified API client for the entire frontend
 
+import { clearAuthSession, getAuthSession, persistAuthSession, supabase } from "@/lib/supabaseClient";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
+const redirectToLogin = async () => {
+    await clearAuthSession();
+    if (typeof window !== "undefined") window.location.href = "/login";
+};
+
+const retryWithToken = (endpoint, options, token) => {
+    const headers = {
+        "Content-Type": "application/json",
+        ...options.headers,
+        Authorization: `Bearer ${token}`,
+    };
+
+    return fetch(`${API_URL}${endpoint}`, { ...options, headers });
+};
+
 export async function apiClient(endpoint, options = {}) {
-    let token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+    const session = await getAuthSession();
+    let token = session?.accessToken || null;
     
     const headers = {
         "Content-Type": "application/json",
@@ -23,7 +41,7 @@ export async function apiClient(endpoint, options = {}) {
 
     // Provide automatic token refresh mechanism if returning 401 Unauthorized
     if (response.status === 401) {
-        const refreshToken = typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null;
+        const refreshToken = session?.refreshToken || (typeof window !== "undefined" ? localStorage.getItem("refresh_token") : null);
         
         if (refreshToken) {
             try {
@@ -37,27 +55,33 @@ export async function apiClient(endpoint, options = {}) {
                 if (refreshResponse.ok) {
                     const data = await refreshResponse.json();
                     if (data.access_token) {
-                        localStorage.setItem("access_token", data.access_token);
-                        localStorage.setItem("refresh_token", data.refresh_token);
-                        localStorage.setItem("user_id", data.user_id);
+                        persistAuthSession({
+                            access_token: data.access_token,
+                            refresh_token: data.refresh_token,
+                            user_id: data.user_id,
+                            user_email: typeof window !== "undefined" ? localStorage.getItem("user_email") : "",
+                        });
                         
                         // Retry original request with new token
-                        headers["Authorization"] = `Bearer ${data.access_token}`;
-                        response = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+                        response = await retryWithToken(endpoint, options, data.access_token);
                     }
                 } else {
-                    // Refresh failed (e.g. token expired/invalid) - Force logout
-                    localStorage.clear();
-                    if (typeof window !== "undefined") window.location.href = "/login";
+                    const { data, error } = await supabase.auth.refreshSession({ refresh_token: refreshToken });
+
+                    if (!error && data?.session?.access_token) {
+                        const refreshed = persistAuthSession(data.session);
+                        response = await retryWithToken(endpoint, options, refreshed.accessToken);
+                    } else {
+                        // Refresh failed (e.g. token expired/invalid) - Force logout
+                        await redirectToLogin();
+                    }
                 }
             } catch (err) {
-                 localStorage.clear();
-                 if (typeof window !== "undefined") window.location.href = "/login";
+                 await redirectToLogin();
             }
         } else {
              // No refresh token available - Force logout
-             localStorage.clear();
-             if (typeof window !== "undefined") window.location.href = "/login";
+             await redirectToLogin();
         }
     }
 

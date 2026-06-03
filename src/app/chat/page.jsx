@@ -8,6 +8,7 @@ import ChatHeader from "@/components/chat/ChatHeader";
 import MessageBubble from "@/components/chat/MessageBubble";
 import ChatInput from "@/components/chat/ChatInput";
 import { apiClient } from "@/lib/apiClient";
+import { clearAuthSession, getAuthSession } from "@/lib/supabaseClient";
 import { motion, AnimatePresence } from "framer-motion";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
@@ -33,19 +34,27 @@ export default function ChatPage() {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    const loadSession = async () => {
+      const session = await getAuthSession();
 
-    const storedUserId = localStorage.getItem("user_id");
+      if (!session?.userId) {
+        router.push("/login");
+        return;
+      }
 
-    setUserId(storedUserId || "test-user");
-    setUserEmail(localStorage.getItem("user_email") || "test@example.com");
+      setUserId(session.userId);
+      setUserEmail(session.userEmail || "");
 
-    // Fetch conversations from Backend
-    fetchConversations(storedUserId || "test-user");
+      // Fetch conversations from Backend
+      fetchConversations(session.userId);
 
-    // Auto close sidebar on mobile
-    if (window.innerWidth < 768) {
-      setIsSidebarOpen(false);
-    }
+      // Auto close sidebar on mobile
+      if (window.innerWidth < 768) {
+        setIsSidebarOpen(false);
+      }
+    };
+
+    loadSession();
   }, [router]);
 
   useEffect(() => {
@@ -335,10 +344,7 @@ export default function ChatPage() {
     } catch (err) {
       console.warn("Sign out failed, clearing session anyway.", err);
     } finally {
-      localStorage.removeItem("access_token");
-      localStorage.removeItem("refresh_token");
-      localStorage.removeItem("user_id");
-      localStorage.removeItem("user_email");
+      await clearAuthSession();
       router.push("/login");
     }
   };
