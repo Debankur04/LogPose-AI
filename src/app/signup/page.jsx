@@ -10,6 +10,14 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabaseClient";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 
+const authInputClass =
+  "auth-field !text-slate-950 !caret-slate-950 placeholder:!text-slate-400 selection:!bg-cyan-200 selection:!text-slate-950";
+
+const authPasswordInputClass = `${authInputClass} pr-10`;
+const authConfirmPasswordInputClass = `${authInputClass} pr-14`;
+const passwordToggleClass =
+  "absolute right-3 top-1/2 -translate-y-1/2 text-slate-950 hover:text-slate-700 transition-colors";
+
 export default function SignupPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -107,7 +115,7 @@ export default function SignupPage() {
                 type="email"
                 placeholder="m@example.com"
                 required
-                className='text-slate-950 caret-black'
+                className={authInputClass}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -120,7 +128,7 @@ export default function SignupPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  className='text-slate-950 caret-black placeholder:text-slate-500 pr-10'
+                  className={authPasswordInputClass}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -128,10 +136,10 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-3 text-black hover:text-slate-700 transition-colors"
+                  className={passwordToggleClass}
                   title={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff className="text-slate-950" size={18} /> : <Eye className="text-slate-950" size={18} />}
                 </button>
               </div>
             </div>
@@ -143,7 +151,7 @@ export default function SignupPage() {
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
-                  className={`text-slate-950 caret-black placeholder:text-slate-500 pr-14 ${password && confirmPassword && password !== confirmPassword ? 'border-red-500' : ''}`}
+                  className={`${authConfirmPasswordInputClass} ${password && confirmPassword && password !== confirmPassword ? 'border-red-500' : ''}`}
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -151,10 +159,10 @@ export default function SignupPage() {
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-3 text-black hover:text-slate-700 transition-colors"
+                  className={passwordToggleClass}
                   title={showConfirmPassword ? "Hide password" : "Show password"}
                 >
-                  {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showConfirmPassword ? <EyeOff className="text-slate-950" size={18} /> : <Eye className="text-slate-950" size={18} />}
                 </button>
                 {password && confirmPassword && password !== confirmPassword && (
                   <AlertCircle className="absolute right-10 top-3 text-red-500" size={18} />
