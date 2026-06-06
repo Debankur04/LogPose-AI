@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, Trash2, Plus, X } from "lucide-react";
+import { ArrowLeft, Save, Trash2, Plus, X, CreditCard, Crown, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,6 +18,17 @@ const parseError = (data) => {
 };
 
 const DEFAULT_DIETARY = { budget: "", food_type: "" };
+
+const loadRazorpay = () =>
+  new Promise((resolve) => {
+    if (typeof window === "undefined") return resolve(false);
+    if (window.Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
 
 export default function PreferencesPage() {
   const router = useRouter();
@@ -35,6 +46,8 @@ export default function PreferencesPage() {
   const [isFetching, setIsFetching] = useState(true);
   const [isExisting, setIsExisting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [quota, setQuota] = useState(null);
+  const [isBilling, setIsBilling] = useState(false);
 
 
   useEffect(() => {
@@ -49,6 +62,7 @@ export default function PreferencesPage() {
       setUserId(session.userId);
       setUserEmail(session.userEmail || "");
       fetchPreferences(session.userId);
+      fetchQuota(session.userId);
     };
 
     loadSession();
@@ -90,6 +104,91 @@ export default function PreferencesPage() {
       setStatus({ type: "error", message: err.message || "Failed to load preferences" });
     } finally {
       setIsFetching(false);
+    }
+  };
+
+  const fetchQuota = async (uid) => {
+    try {
+      const res = await apiClient(`/quota/status?user_id=${encodeURIComponent(uid)}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setQuota(data);
+    } catch {
+      // Quota display should not block preference editing.
+    }
+  };
+
+  const handleWarlordUpgrade = async () => {
+    if (!userId || isBilling) return;
+    setIsBilling(true);
+    setStatus({ type: "", message: "" });
+    try {
+      const loaded = await loadRazorpay();
+      if (!loaded) throw new Error("Unable to load Razorpay Checkout.");
+
+      const orderRes = await apiClient("/billing/razorpay/order", {
+        method: "POST",
+        body: JSON.stringify({ user_id: userId }),
+      });
+      const order = await orderRes.json().catch(() => ({}));
+      if (!orderRes.ok) throw new Error(parseError(order));
+
+      const checkout = new window.Razorpay({
+        key: order.key_id,
+        amount: order.amount,
+        currency: order.currency || "INR",
+        name: "LogPose AI",
+        description: "Warlord plan",
+        order_id: order.order_id,
+        subscription_id: order.subscription_id,
+        prefill: { email: userEmail },
+        handler: async (response) => {
+          const verifyRes = await apiClient("/billing/razorpay/verify", {
+            method: "POST",
+            body: JSON.stringify({
+              user_id: userId,
+              razorpay_order_id: response.razorpay_order_id || order.order_id || "",
+              razorpay_subscription_id: response.razorpay_subscription_id || order.subscription_id || "",
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            }),
+          });
+          const verified = await verifyRes.json().catch(() => ({}));
+          if (!verifyRes.ok) throw new Error(parseError(verified));
+          setStatus({ type: "success", message: "Warlord plan activated." });
+          fetchQuota(userId);
+        },
+        modal: {
+          ondismiss: () => setIsBilling(false),
+        },
+      });
+      checkout.open();
+    } catch (err) {
+      setStatus({ type: "error", message: err.message || "Upgrade failed" });
+    } finally {
+      setIsBilling(false);
+    }
+  };
+
+  const handleEmperorRequest = async () => {
+    if (!userId || isBilling) return;
+    setIsBilling(true);
+    setStatus({ type: "", message: "" });
+    try {
+      const res = await apiClient("/billing/emperor/request", {
+        method: "POST",
+        body: JSON.stringify({
+          user_id: userId,
+          message: "Interested in Emperor custom pricing from settings.",
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(parseError(data));
+      setStatus({ type: "success", message: data.message || "Request sent." });
+    } catch (err) {
+      setStatus({ type: "error", message: err.message || "Request failed" });
+    } finally {
+      setIsBilling(false);
     }
   };
 
@@ -226,6 +325,43 @@ export default function PreferencesPage() {
           <p className="text-sm text-slate-400 mb-6">
             Help the AI tailor better itineraries for you. Your dietary preferences are saved as structured data.
           </p>
+
+          <div className="mb-6 rounded-lg border border-slate-800 bg-slate-950 p-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="flex items-center gap-2 text-sm font-medium text-slate-200">
+                  <Crown className="h-4 w-4 text-cyan-300" />
+                  {quota?.tier || "Pirate"} Plan
+                </div>
+                <p className="mt-1 text-xs text-slate-400">
+                  {quota
+                    ? `${quota.used}/${quota.limit} messages used this week. Resets ${new Date(quota.reset_at).toLocaleDateString()}.`
+                    : "Loading weekly quota..."}
+                </p>
+              </div>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <Button
+                  type="button"
+                  onClick={handleWarlordUpgrade}
+                  disabled={isBilling || quota?.tier === "Warlord"}
+                  className="gap-2"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  {quota?.tier === "Warlord" ? "Warlord Active" : "Upgrade ₹99"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleEmperorRequest}
+                  disabled={isBilling}
+                  className="gap-2 border-slate-700 text-slate-100 hover:text-white"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Emperor
+                </Button>
+              </div>
+            </div>
+          </div>
 
           {/* Delete confirm banner */}
           {showDeleteConfirm && (
