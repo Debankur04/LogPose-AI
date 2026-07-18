@@ -19,17 +19,6 @@ const parseError = (data) => {
 
 const DEFAULT_DIETARY = { budget: "", food_type: "" };
 
-const loadRazorpay = () =>
-  new Promise((resolve) => {
-    if (typeof window === "undefined") return resolve(false);
-    if (window.Razorpay) return resolve(true);
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-
 export default function PreferencesPage() {
   const router = useRouter();
   const [userId, setUserId] = useState(null);
@@ -123,46 +112,13 @@ export default function PreferencesPage() {
     setIsBilling(true);
     setStatus({ type: "", message: "" });
     try {
-      const loaded = await loadRazorpay();
-      if (!loaded) throw new Error("Unable to load Razorpay Checkout.");
-
-      const orderRes = await apiClient("/billing/razorpay/order", {
+      const checkoutRes = await apiClient("/billing/elixpo/checkout", {
         method: "POST",
-        body: JSON.stringify({ user_id: userId }),
+        body: JSON.stringify({ user_id: userId, tier: "warlord", region: "IN", recurring: true }),
       });
-      const order = await orderRes.json().catch(() => ({}));
-      if (!orderRes.ok) throw new Error(parseError(order));
-
-      const checkout = new window.Razorpay({
-        key: order.key_id,
-        amount: order.amount,
-        currency: order.currency || "INR",
-        name: "LogPose AI",
-        description: "Warlord plan",
-        order_id: order.order_id,
-        subscription_id: order.subscription_id,
-        prefill: { email: userEmail },
-        handler: async (response) => {
-          const verifyRes = await apiClient("/billing/razorpay/verify", {
-            method: "POST",
-            body: JSON.stringify({
-              user_id: userId,
-              razorpay_order_id: response.razorpay_order_id || order.order_id || "",
-              razorpay_subscription_id: response.razorpay_subscription_id || order.subscription_id || "",
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            }),
-          });
-          const verified = await verifyRes.json().catch(() => ({}));
-          if (!verifyRes.ok) throw new Error(parseError(verified));
-          setStatus({ type: "success", message: "Warlord plan activated." });
-          fetchQuota(userId);
-        },
-        modal: {
-          ondismiss: () => setIsBilling(false),
-        },
-      });
-      checkout.open();
+      const checkout = await checkoutRes.json().catch(() => ({}));
+      if (!checkoutRes.ok || !checkout.checkout_url) throw new Error(parseError(checkout));
+      window.location.href = checkout.checkout_url;
     } catch (err) {
       setStatus({ type: "error", message: err.message || "Upgrade failed" });
     } finally {
@@ -347,7 +303,7 @@ export default function PreferencesPage() {
                   className="gap-2"
                 >
                   <CreditCard className="h-4 w-4" />
-                  {quota?.tier === "Warlord" ? "Warlord Active" : "Upgrade ₹99"}
+                  {quota?.tier === "Warlord" ? "Warlord Active" : "Upgrade with Elixpo Pay"}
                 </Button>
                 <Button
                   type="button"

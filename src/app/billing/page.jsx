@@ -1,41 +1,49 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import Link from 'next/link';
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
+import { CreditCard, ExternalLink } from "lucide-react";
+import { apiClient } from "@/lib/apiClient";
+import { getAuthSession } from "@/lib/supabaseClient";
+
+const parseError = (data) => {
+  if (!data) return "Something went wrong";
+  if (typeof data.detail === "string") return data.detail;
+  if (Array.isArray(data.detail)) return data.detail[0]?.msg || "Validation error";
+  if (typeof data.detail === "object") return JSON.stringify(data.detail);
+  return "Something went wrong";
+};
 
 export default function BillingPage() {
   const [planStatus, setPlanStatus] = useState(null);
-  const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState("");
+  const [isOpeningCheckout, setIsOpeningCheckout] = useState(false);
+  const [demoCode, setDemoCode] = useState("");
+  const [isActivatingDemo, setIsActivatingDemo] = useState(false);
+
+  const loadPlanStatus = async () => {
+    const session = await getAuthSession();
+    if (!session?.userId) {
+      window.location.href = "/login";
+      return null;
+    }
+
+    const res = await apiClient(`/quota/status?user_id=${encodeURIComponent(session.userId)}`);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(parseError(data));
+    setPlanStatus(data);
+    return session;
+  };
 
   useEffect(() => {
-    // In a real application, you would fetch from the backend using the user's token.
-    // For now, we mock the fetch with a delay to show the skeleton loader.
     const fetchBillingData = async () => {
       setLoading(true);
       try {
-        // Example structure that matches the backend PlanStatusResponse
-        // const response = await fetch('/billing/current-plan', { headers: { Authorization: `Bearer ${token}` }});
-        // const data = await response.json();
-        
-        // Mock data to demonstrate the UI
-        setTimeout(() => {
-          setPlanStatus({
-            tier: 'Warlord',
-            monthly_cost: 99.0,
-            message_allowance: 50,
-            billing_status: 'active',
-            subscription_start_date: new Date().toISOString()
-          });
-
-          setInvoices([
-            { id: '1', invoice_number: 'LP-2026-05-0001', invoice_month: '2026-05-01', amount: 99.0, status: 'paid' },
-            { id: '2', invoice_number: 'LP-2026-04-0001', invoice_month: '2026-04-01', amount: 99.0, status: 'paid' }
-          ]);
-          setLoading(false);
-        }, 1000);
+        await loadPlanStatus();
       } catch (error) {
-        console.error("Failed to fetch billing data", error);
+        setStatus(error.message || "Failed to fetch billing data");
+      } finally {
         setLoading(false);
       }
     };
@@ -43,109 +51,148 @@ export default function BillingPage() {
     fetchBillingData();
   }, []);
 
-  const handleDownloadInvoice = async (invoiceId) => {
-    // Logic to call the backend and get the signed URL, then open it
-    alert(`Triggering download for invoice ${invoiceId}`);
+  const openElixpoCheckout = async () => {
+    setIsOpeningCheckout(true);
+    setStatus("");
+    try {
+      const session = await getAuthSession();
+      if (!session?.userId) {
+        window.location.href = "/login";
+        return;
+      }
+
+      const res = await apiClient("/billing/elixpo/checkout", {
+        method: "POST",
+        body: JSON.stringify({ user_id: session.userId, tier: "warlord", region: "IN", recurring: true }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.checkout_url) throw new Error(parseError(data));
+      window.location.href = data.checkout_url;
+    } catch (error) {
+      setStatus(error.message || "Unable to open Elixpo Pay checkout");
+    } finally {
+      setIsOpeningCheckout(false);
+    }
+  };
+
+  const activateDemoWarlord = async () => {
+    if (!demoCode.trim()) {
+      setStatus("Enter the demo activation code.");
+      return;
+    }
+
+    setIsActivatingDemo(true);
+    setStatus("");
+    try {
+      const session = await getAuthSession();
+      if (!session?.userId) {
+        window.location.href = "/login";
+        return;
+      }
+
+      const res = await apiClient("/billing/demo/activate-warlord", {
+        method: "POST",
+        body: JSON.stringify({ user_id: session.userId, activation_code: demoCode.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(parseError(data));
+      setStatus(data.message || "Demo Warlord entitlement activated.");
+      setDemoCode("");
+      await loadPlanStatus();
+    } catch (error) {
+      setStatus(error.message || "Unable to activate demo entitlement");
+    } finally {
+      setIsActivatingDemo(false);
+    }
   };
 
   return (
     <div className="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 bg-transparent">
       <div className="max-w-5xl mx-auto space-y-8">
-        
         <div>
-          <h1 className="text-3xl font-extrabold text-white">Billing & Subscription</h1>
-          <p className="mt-2 text-muted">Manage your plan, invoices, and billing history.</p>
+          <h1 className="text-3xl font-extrabold text-white">Billing &amp; Subscription</h1>
+          <p className="mt-2 text-muted">Manage your plan through Elixpo Pay.</p>
+          {status && <p className="mt-3 text-sm text-rose-300">{status}</p>}
         </div>
 
         {loading ? (
           <div className="animate-pulse space-y-8">
-            <div className="h-48 bg-panel border border-muted/20 rounded-2xl"></div>
-            <div className="h-64 bg-panel border border-muted/20 rounded-2xl"></div>
+            <div className="h-48 rounded-lg border border-muted/20 bg-panel" />
+            <div className="h-40 rounded-lg border border-muted/20 bg-panel" />
           </div>
         ) : (
           <>
-            {/* Current Plan Card */}
-            <div className="bg-panel border border-muted/20 rounded-2xl shadow-lg p-6 lg:p-8 flex flex-col md:flex-row justify-between items-start md:items-center">
+            <div className="flex flex-col items-start justify-between gap-6 rounded-lg border border-muted/20 bg-panel p-6 shadow-lg md:flex-row md:items-center lg:p-8">
               <div>
-                <h2 className="text-xl font-semibold text-white mb-2">Current Plan</h2>
+                <h2 className="mb-2 text-xl font-semibold text-white">Current Plan</h2>
                 <div className="flex items-center space-x-4">
-                  <span className="text-3xl font-bold text-accent">{planStatus?.tier}</span>
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide ${
-                    planStatus?.billing_status === 'active' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                  }`}>
-                    {planStatus?.billing_status}
+                  <span className="text-3xl font-bold text-accent">{planStatus?.tier || "Pirate"}</span>
+                  <span className="rounded-full bg-cyan-500/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-300">
+                    {planStatus?.billing_status || "free"}
                   </span>
                 </div>
                 <div className="mt-4 grid grid-cols-2 gap-6">
                   <div>
-                    <p className="text-sm text-muted">Monthly Cost</p>
-                    <p className="text-lg font-medium text-white">₹{planStatus?.monthly_cost}</p>
+                    <p className="text-sm text-muted">Weekly Usage</p>
+                    <p className="text-lg font-medium text-white">
+                      {planStatus?.used ?? 0}/{planStatus?.limit ?? 15}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted">Message Allowance</p>
-                    <p className="text-lg font-medium text-white">{planStatus?.message_allowance} / week</p>
+                    <p className="text-sm text-muted">Next Reset</p>
+                    <p className="text-lg font-medium text-white">
+                      {planStatus?.reset_at ? new Date(planStatus.reset_at).toLocaleDateString() : "Weekly"}
+                    </p>
                   </div>
                 </div>
               </div>
-              <div className="mt-6 md:mt-0 flex flex-col space-y-3 w-full md:w-auto">
-                <Link href="/plans" className="px-6 py-2 bg-transparent border border-accent text-accent hover:bg-accent hover:text-white rounded-md font-medium transition-colors text-center">
-                  Change Plan
+              <div className="flex w-full flex-col gap-3 md:w-auto">
+                <button
+                  onClick={openElixpoCheckout}
+                  disabled={isOpeningCheckout || planStatus?.tier === "Warlord"}
+                  className="flex items-center justify-center gap-2 rounded-md border border-accent px-6 py-2 text-center font-medium text-accent transition-colors hover:bg-accent hover:text-white disabled:opacity-60"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  {planStatus?.tier === "Warlord" ? "Warlord Active" : isOpeningCheckout ? "Opening..." : "Upgrade with Elixpo Pay"}
+                </button>
+                <Link
+                  href="/plans"
+                  className="flex items-center justify-center gap-2 rounded-md border border-muted/30 px-6 py-2 text-center font-medium text-slate-200 transition-colors hover:border-accent hover:text-accent"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  View Plans
                 </Link>
-                {planStatus?.billing_status === 'active' && (
-                  <button className="px-6 py-2 bg-transparent border border-red-500/50 text-red-400 hover:bg-red-500 hover:text-white rounded-md font-medium transition-colors text-center">
-                    Cancel Subscription
-                  </button>
-                )}
               </div>
             </div>
 
-            {/* Invoices Table */}
-            <div className="bg-panel border border-muted/20 rounded-2xl shadow-lg overflow-hidden">
-              <div className="px-6 py-5 border-b border-muted/20">
-                <h3 className="text-lg font-semibold text-white">Invoice History</h3>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-muted/20">
-                  <thead className="bg-black/20">
-                    <tr>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Invoice Number</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Date</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Amount</th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
-                      <th scope="col" className="relative px-6 py-3"><span className="sr-only">Download</span></th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-muted/20">
-                    {invoices.length > 0 ? (
-                      invoices.map((invoice) => (
-                        <tr key={invoice.id} className="hover:bg-white/5 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{invoice.invoice_number}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{new Date(invoice.invoice_month).toLocaleDateString()}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">₹{invoice.amount}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-500/20 text-green-400">
-                              {invoice.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button 
-                              onClick={() => handleDownloadInvoice(invoice.id)}
-                              className="text-accent hover:text-accent-2 transition-colors"
-                            >
-                              Download PDF
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td colSpan="5" className="px-6 py-8 text-center text-sm text-muted">
-                          No invoices found.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
+            <div className="rounded-lg border border-muted/20 bg-panel p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-white">Invoices</h3>
+              <p className="mt-2 text-sm text-muted">
+                Elixpo Pay is the billing source of truth. Receipts and mandate details are available from the hosted payment flow.
+              </p>
+            </div>
+
+            <div className="rounded-lg border border-muted/20 bg-panel p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-white">Demo Entitlement</h3>
+              <p className="mt-2 text-sm text-muted">
+                For interviews and local demos, activate Warlord with a server-side demo code instead of processing a real payment.
+              </p>
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+                <input
+                  type="password"
+                  value={demoCode}
+                  onChange={(event) => setDemoCode(event.target.value)}
+                  placeholder="Demo activation code"
+                  className="min-h-10 flex-1 rounded-md border border-muted/30 bg-black/20 px-3 text-sm text-white placeholder:text-slate-500 focus:border-accent focus:outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={activateDemoWarlord}
+                  disabled={isActivatingDemo}
+                  className="rounded-md border border-accent px-5 py-2 text-sm font-medium text-accent transition-colors hover:bg-accent hover:text-white disabled:opacity-60"
+                >
+                  {isActivatingDemo ? "Activating..." : "Activate Demo Warlord"}
+                </button>
               </div>
             </div>
           </>
